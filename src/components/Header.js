@@ -4,8 +4,16 @@ import {
   MenuIcon,
   ShoppingCartIcon,
 } from '@heroicons/react/outline';
+import { signIn, signOut, useSession } from 'next-auth/client';
+import { useRouter } from 'next/router';
+import { useSelector } from 'react-redux';
+import { selectItems } from '../slices/basketSlice';
 
 const Header = () => {
+  const router = useRouter();
+  const [session] = useSession();
+  const items = useSelector(selectItems);
+
   return (
     <header>
       {/* Top Nav */}
@@ -18,6 +26,7 @@ const Header = () => {
             height={40}
             objectFit="contain"
             className="cursor-pointer"
+            onClick={() => router.push('/')}
           />
         </div>
         {/* Search */}
@@ -31,17 +40,25 @@ const Header = () => {
         </div>
         {/* Right */}
         <div className="flex text-white gap-6 px-4 items-center">
-          <div className="cursor-pointer">
-            <p className="text-sm">Hello, Jibran Advani</p>
+          <div
+            className="cursor-pointer hover:underline"
+            onClick={!session ? signIn : signOut}
+          >
+            <p className="text-sm">
+              {session ? `Hello, ${session.user.name}` : `Sign in`}
+            </p>
             <p className="font-bold">Accounts &amp; Lists</p>
           </div>
           <div className="cursor-pointer">
             <p className="text-sm">Returns</p>
             <p className="font-bold">&amp; Orders</p>
           </div>
-          <div className="relative flex items-center space-x-2 cursor-pointer">
+          <div
+            className="relative flex items-center space-x-2 cursor-pointer"
+            onClick={() => router.push('/checkout')}
+          >
             <span className="sm:absolute sm:top-0 sm:right-10 block h-4 w-4 text-center text-xs rounded-full bg-yellow-400 text-black absolute top-0 -right-3">
-              0
+              {items.length}
             </span>
             <ShoppingCartIcon className="h-7" />
             <p className="hidden sm:block mt-3">Basket</p>
